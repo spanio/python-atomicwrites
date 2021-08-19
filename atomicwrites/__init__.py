@@ -182,6 +182,13 @@ class AtomicWriter(object):
             dir = os.path.normpath(os.path.dirname(self._path))
         descriptor, name = tempfile.mkstemp(suffix=suffix, prefix=prefix,
                                             dir=dir)
+
+        # If specified, change user and group.
+        uid = kwargs.pop('uid', -1)
+        gid = kwargs.pop('gid', -1)
+        if uid != -1 or gid != -1:
+            os.fchown(descriptor, uid, gid)
+
         # io.open() will take either the descriptor or the name, but we need
         # the name later for commit()/replace_atomic() and couldn't find a way
         # to get the filename from the descriptor.
